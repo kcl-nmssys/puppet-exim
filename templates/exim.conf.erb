@@ -1,0 +1,365 @@
+# Puppet managed file
+
+######################################################################
+#                    MAIN CONFIGURATION SETTINGS                     #
+######################################################################
+
+primary_hostname = <%= scope['exim::primary_hostname'] %>
+
+domainlist local_domains = <%= scope['exim::primary_hostname'] %> : localhost
+domainlist relay_to_domains = <%= @relay_to_domains_txt %>
+hostlist   relay_from_hosts = <%= @relay_from_hosts_txt %>
+
+acl_smtp_rcpt = acl_check_rcpt
+acl_smtp_data = acl_check_data
+
+<% if scope['exim::av_scanner_enable'] %>
+av_scanner = <%= scope['exim::av_scanner'] %>
+<% end %>
+
+<% if scope['exim::spamd_enable'] %>
+spamd_address = <%= scope['exim::spamd_address'] %> <%= scope['exim::spamd_port'] %> <%= scope['exim::spamd_variant'] %>
+<% end %>
+
+<% if scope['exim::tls_enabled'] %>
+tls_advertise_hosts = *
+tls_certificate = <%= scope['exim::tls_certificate_path'] %>
+tls_privatekey = <%= scope['exim::tls_privatekey_path'] %>
+<% end %>
+
+# For OpenSSL, prefer EC- over RSA-authenticated ciphers
+# tls_require_ciphers = ECDSA:RSA:!COMPLEMENTOFDEFAULT
+
+daemon_smtp_ports = <%= @daemon_smtp_ports_txt %>
+<% if scope['exim::tls_enabled'] %>
+tls_on_connect_ports = 465
+<% end %>
+
+qualify_domain = <%= scope['exim::qualify_domain'] %>
+qualify_recipient = <%= scope['exim::qualify_recipient'] %>
+
+<% if scope['exim::allow_domain_literals'] %>
+allow_domain_literals
+<% end %>
+
+never_users = <%= scope['exim::never_users_txt'] %>
+
+host_lookup = <%= @host_lookup_txt %>
+
+<% if scope['exim::rfc1413_enable'] %>
+rfc1413_hosts = <%= scope['exim::rfc1413_hosts'] %>
+rfc1413_query_timeout = <%= scope['exim::rfc1413_query_timeout'] %>
+<% end %>
+
+prdr_enable = <%= scope.call_function('bool2str', scope['exim::prdr_enable']) %>
+
+<% if scope['exim::sender_unqualified_hosts'].length() > 0 %>
+sender_unqualified_hosts = <%= @sender_unqualified_hosts_txt %>
+<% end %>
+<% if scope['exim::recipient_unqualified_hosts'].length() > 0 %>
+recipient_unqualified_hosts = <%= @recipient_unqualified_hosts_txt %>
+<% end %>
+
+log_selector = <%= scope['exim::log_selector'] %>
+
+ignore_bounce_errors_after = <%= scope['exim::ignore_bounce_errors_after'] %>
+timeout_frozen_after = <%= scope['exim::timeout_frozen_after'] %>
+
+split_spool_directory = <%= scope.call_function('bool2str', scope['exim::split_spool_directory']) %>
+
+check_rfc2047_length = <%= scope.call_function('bool2str', scope['exim::check_rfc2047_length']) %>
+accept_8bitmime = <%= scope.call_function('bool2str', scope['exim::accept_8bitmime']) %>
+
+keep_environment = <%= scope['exim::keep_environment'] %>
+add_environment = <%= scope['exim::add_environment'] %>
+
+<% if scope['exim::auth_ldap_enable'] %>
+ldap_default_servers = <%= scope['exim::ldap_hostname'] %>
+<% end %>
+
+######################################################################
+#                       ACL CONFIGURATION                            #
+#         Specifies access control lists for incoming SMTP mail      #
+######################################################################
+
+begin acl
+
+acl_check_rcpt:
+  accept  hosts = :
+          control = dkim_disable_verify
+
+  deny    message       = Restricted characters in address
+          domains       = +local_domains
+          local_parts   = ^[.] : ^.*[@%!/|]
+
+  deny    message       = Restricted characters in address
+          domains       = !+local_domains
+          local_parts   = ^[./|] : ^.*[@%!] : ^.*/\\.\\./
+
+  accept  local_parts   = postmaster
+          domains       = +local_domains
+
+  require verify        = sender
+
+  accept  hosts         = +relay_from_hosts
+          control       = submission
+          control       = dkim_disable_verify
+
+  accept  authenticated = *
+          control       = submission
+          control       = dkim_disable_verify
+
+  require message	= nice hosts say HELO first
+          condition	= ${if def:sender_helo_name}
+
+  require message = relay not permitted
+          domains = +local_domains : +relay_to_domains
+
+  require verify = recipient
+
+  accept
+
+acl_check_data:
+
+  deny    message    = maximum allowed line length is 998 octets, \
+                       got $max_received_linelength
+          condition  = ${if > {$max_received_linelength}{998}}
+
+<% if scope['exim::av_scanner_enable'] %>
+  deny    malware    = *
+          message    = This message contains a virus ($malware_name).
+<% end %>
+
+<% if scope['exim::spamd_enable'] %>
+  warn    spam       = nobody
+         add_header = X-Spam_score: $spam_score\n\
+                      X-Spam_score_int: $spam_score_int\n\
+                      X-Spam_bar: $spam_bar\n\
+                      X-Spam_report: $spam_report
+<% end %>
+
+  accept
+
+######################################################################
+#                      ROUTERS CONFIGURATION                         #
+#               Specifies how addresses are handled                  #
+######################################################################
+#     THE ORDER IN WHICH THE ROUTERS ARE DEFINED IS IMPORTANT!       #
+# An address is passed to each router in turn until it is accepted.  #
+######################################################################
+
+begin routers
+
+<% if scope['exim::domain_literal_enable'] %>
+  domain_literal:
+    driver = ipliteral
+    domains = ! +local_domains
+    transport = remote_smtp
+<% end %>
+
+<% if scope['exim::smarthost_enable'] %>
+  smarthost:
+    driver = manualroute
+    domains = ! +local_domains
+    transport = remote_smtp
+    route_data = <%= scope['exim::smarthost'] %>
+    ignore_target_hosts = <; 0.0.0.0 ; 127.0.0.0/8 ; ::1
+    no_more
+<% else %>
+  dnslookup:
+    driver = dnslookup
+    domains = ! +local_domains
+    transport = remote_smtp
+    ignore_target_hosts = <; 0.0.0.0 : 127.0.0.0/8 ; ::1
+    no_more
+<% end %>
+
+system_aliases:
+  driver = redirect
+  allow_fail
+  allow_defer
+  data = ${lookup{$local_part}lsearch{/etc/aliases}}
+  file_transport = address_file
+  pipe_transport = address_pipe
+
+
+userforward:
+  driver = redirect
+  check_local_user
+  file = $home/.forward
+  no_verify
+  no_expn
+  check_ancestor
+  file_transport = address_file
+  pipe_transport = address_pipe
+  reply_transport = address_reply
+
+localuser:
+  driver = accept
+  check_local_user
+  transport = maildir_home
+  cannot_route_message = Unknown user
+
+######################################################################
+#                      TRANSPORTS CONFIGURATION                      #
+######################################################################
+#                       ORDER DOES NOT MATTER                        #
+#     Only one appropriate transport is called for each delivery.    #
+######################################################################
+
+begin transports
+
+remote_smtp:
+  driver = smtp
+  message_size_limit = ${if > {$max_received_linelength}{998} {1}{0}}
+
+local_delivery:
+  driver = appendfile
+  file = /var/mail/$local_part
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+  group = mail
+  mode = 0660
+
+maildir_home:
+  driver = appendfile
+  directory = $home/Maildir
+  create_directory
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+  maildir_format
+  directory_mode = 0700
+  mode = 0600
+  mode_fail_narrower = false
+
+address_pipe:
+  driver = pipe
+  return_output
+
+address_file:
+  driver = appendfile
+  delivery_date_add
+  envelope_to_add
+  return_path_add
+
+address_reply:
+  driver = autoreply
+
+
+
+######################################################################
+#                      RETRY CONFIGURATION                           #
+######################################################################
+
+begin retry
+
+# Address or Domain    Error       Retries
+# -----------------    -----       -------
+
+*                      *           <%= scope['exim::retries'] %>
+
+
+######################################################################
+#                      REWRITE CONFIGURATION                         #
+######################################################################
+
+begin rewrite
+
+<% scope['exim::rewrites'].each do |rule| %>
+<%= rule[0] %> <%= rule[1] %> <%= rule[2] %>
+<% end %>
+
+
+######################################################################
+#                   AUTHENTICATION CONFIGURATION                     #
+######################################################################
+
+# The following authenticators support plaintext username/password
+# authentication using the standard PLAIN mechanism and the traditional
+# but non-standard LOGIN mechanism, with Exim acting as the server.
+# PLAIN and LOGIN are enough to support most MUA software.
+#
+# These authenticators are not complete: you need to change the
+# server_condition settings to specify how passwords are verified.
+# They are set up to offer authentication to the client only if the
+# connection is encrypted with TLS, so you also need to add support
+# for TLS. See the global configuration options section at the start
+# of this file for more about TLS.
+#
+# The default RCPT ACL checks for successful authentication, and will accept
+# messages from authenticated users from anywhere on the Internet.
+
+begin authenticators
+
+# PLAIN authentication has no server prompts. The client sends its
+# credentials in one lump, containing an authorization ID (which we do not
+# use), an authentication ID, and a password. The latter two appear as
+# $auth2 and $auth3 in the configuration and should be checked against a
+# valid username and password. In a real configuration you would typically
+# use $auth2 as a lookup key, and compare $auth3 against the result of the
+# lookup, perhaps using the crypteq{}{} condition.
+
+#PLAIN:
+#  driver                     = plaintext
+#  server_set_id              = $auth2
+#  server_prompts             = :
+#  server_condition           = Authentication is not yet configured
+#  server_advertise_condition = ${if def:tls_in_cipher }
+
+# LOGIN authentication has traditional prompts and responses. There is no
+# authorization ID in this mechanism, so unlike PLAIN the username and
+# password are $auth1 and $auth2. Apart from that you can use the same
+# server_condition setting for both authenticators.
+
+#LOGIN:
+#  driver                     = plaintext
+#  server_set_id              = $auth1
+#  server_prompts             = <| Username: | Password:
+#  server_condition           = Authentication is not yet configured
+#  server_advertise_condition = ${if def:tls_in_cipher }
+
+<% if scope['exim::auth_ldap_enable'] %>
+PLAIN:
+  driver                     = plaintext
+  server_set_id              = $auth2
+  server_prompts             = :
+  server_condition           = ${lookup ldapdn \
+    {\
+      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldap:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= @scope['exim::ldap_user_attrib']=${quota_ldap:$auth2})<%= scope['exim::ldap_filter'] %>)\
+    }\
+    {\
+      ${if ldapauth \
+        { \
+          user="$value" \
+          pass="$auth3" ldap:/// \
+        } \
+        {yes}{no}\
+      }\
+    }\
+    {no}\
+  }
+  server_advertise_condition = ${if def:tls_in_cipher }
+
+LOGIN:
+  driver                     = plaintext
+  server_set_id              = $auth1
+  server_prompts             = <| Username: | Password:
+  server_condition           = ${lookup ldapdn \
+    {\
+      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldap:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= @scope['exim::ldap_user_attrib']=${quota_ldap:$auth1})<%= scope['exim::ldap_filter'] %>)\
+    }\
+    {\
+      ${if ldapauth \
+        { \
+          user="$value" \
+          pass="$auth2" ldap:/// \
+        } \
+        {yes}{no}\
+      }\
+    }\
+    {no}\
+  }
+  server_advertise_condition = ${if def:tls_in_cipher }
+<% end %>
