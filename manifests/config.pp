@@ -23,6 +23,12 @@ class exim::config {
       fail('You must provide tls_certificate_content and tls_privatekey_content when tls_enabled is true')
     }
 
+    if $exim::auth_ldap_enable {
+      unless $exim::ldap_hostname and $exim::ldap_base_dn and $exim::ldap_bind_dn and $exim::ldap_passwd {
+        fail('You must provide all ldap_* parameters when auth_ldap_enable is true')
+      }
+    }
+
     file {
       $exim::tls_certificate_path:
         ensure  => 'present',
