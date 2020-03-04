@@ -10,7 +10,7 @@ class exim (
   Boolean $av_scanner_enable                 = false,
   String $av_scanner                         = 'clamd:/tmp/clamd',
   Boolean $spamd_enable                      = false,
-  Enum['variant                              =rspamd', ''] $spamd_variant = '',
+  Enum['variant=rspamd', ''] $spamd_variant  = '',
   Stdlib::Host $spamd_address                = 'localhost',
   Integer $spamd_port                        = 783,
   Boolean $tls_enabled                       = true,
