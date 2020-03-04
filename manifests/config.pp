@@ -55,10 +55,10 @@ class exim::config {
       }
     }
   }
+}
 
-  service {
-    $exim::service_name:
-      ensure => 'running',
-      enable => true;
-  }
+service {
+  $exim::service_name:
+    ensure => 'running',
+    enable => true;
 }
