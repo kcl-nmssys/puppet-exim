@@ -19,6 +19,10 @@ class exim::config {
   }
 
   if $exim::tls_enabled {
+    unless $exim::tls_certificate_content and $exim::tls_privatekey_content {
+      fail('You must provide tls_certificate_content and tls_privatekey_content when tls_enabled is true')
+    }
+
     file {
       $exim::tls_certificate_path:
         ensure  => 'present',
