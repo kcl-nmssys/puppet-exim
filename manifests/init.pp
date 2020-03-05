@@ -52,6 +52,7 @@ class exim (
   Optional[String] $ldap_bind_dn                             = undef,
   Optional[String] $ldap_passwd                              = undef,
   String $ldap_user_attrib                                   = 'sAMAccountName',
+  String $ldap_auth_attrib                                   = 'userPrincipalName',
   Optional[String] $ldap_filter                              = '(objectClass=user)',
 ) {
 
