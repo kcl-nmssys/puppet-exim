@@ -45,6 +45,7 @@ class exim (
   Array[String] $rewrites                    = [],
   Boolean $auth_ldap_enable                  = false,
   Optional[String] $ldap_hostname            = undef,
+  Integer $ldap_port                         = 636,
   Optional[String] $ldap_base_dn             = undef,
   Optional[String] $ldap_bind_dn             = undef,
   Optional[String] $ldap_passwd              = undef,

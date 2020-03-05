@@ -74,7 +74,7 @@ keep_environment = <%= scope['exim::keep_environment'] %>
 add_environment = <%= scope['exim::add_environment'] %>
 
 <% if scope['exim::auth_ldap_enable'] %>
-ldap_default_servers = <%= scope['exim::ldap_hostname'] %>
+ldap_default_servers = <%= scope['exim::ldap_hostname'] %>::<%= scope['exim::ldap_port'] %>
 <% end %>
 
 
@@ -288,7 +288,7 @@ PLAIN:
   server_prompts             = :
   server_condition           = ${lookup ldapdn \
     {\
-      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldap:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= scope['exim::ldap_user_attrib'] %>=${quote_ldap:$auth2})<%= scope['exim::ldap_filter'] %>)\
+      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldaps:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= scope['exim::ldap_user_attrib'] %>=${quote_ldap:$auth2})<%= scope['exim::ldap_filter'] %>)\
     }\
     {\
       ${if ldapauth \
@@ -309,7 +309,7 @@ LOGIN:
   server_prompts             = <| Username: | Password:
   server_condition           = ${lookup ldapdn \
     {\
-      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldap:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= scope['exim::ldap_user_attrib'] %>=${quote_ldap:$auth1})<%= scope['exim::ldap_filter'] %>)\
+      user=\"<%= scope['exim::ldap_bind_dn'] %>\" pass=\"<%= scope['exim::ldap_passwd'] %>\" ldaps:///<%= scope['exim::ldap_base_dn'] %>/?dn?sub?(&(<%= scope['exim::ldap_user_attrib'] %>=${quote_ldap:$auth1})<%= scope['exim::ldap_filter'] %>)\
     }\
     {\
       ${if ldapauth \
