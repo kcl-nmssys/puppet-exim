@@ -75,6 +75,8 @@ add_environment = <%= scope['exim::add_environment'] %>
 
 <% if scope['exim::auth_ldap_enable'] %>
 ldap_default_servers = <%= scope['exim::ldap_hostname'] %>::<%= scope['exim::ldap_port'] %>
+ldap_require_cert = <%= scope['exim::ldap_require_cert'] %>
+ldap_ca_cert_file = <%= scope['exim::ldap_ca_cert_file'] %>
 <% end %>
 
 
