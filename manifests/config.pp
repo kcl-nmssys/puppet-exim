@@ -1,5 +1,5 @@
 class exim::config {
-
+  $local_domains_txt = join($exim::local_domains, ' : ')
   $relay_to_domains_txt = join($exim::relay_to_domains, ' : ')
   $relay_from_hosts_txt = join($exim::relay_from_hosts + ['localhost'], ' : ')
   $daemon_smtp_ports_txt = join($exim::daemon_smtp_ports, ' : ')
