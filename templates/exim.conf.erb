@@ -6,7 +6,7 @@
 
 primary_hostname = <%= scope['exim::primary_hostname'] %>
 
-domainlist local_domains = <%= scope['exim::primary_hostname'] %> : localhost
+domainlist local_domains = <%= @local_domains_txt %> : localhost
 domainlist relay_to_domains = <%= @relay_to_domains_txt %>
 hostlist   relay_from_hosts = <%= @relay_from_hosts_txt %>
 

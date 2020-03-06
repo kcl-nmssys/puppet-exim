@@ -1,9 +1,0 @@
----
-exim::package_name: exim4-daemon-heavy
-exim::service_name: exim4
-exim::service_user: Debian-exim
-exim::service_group: Debian-exim
-exim::config_file: /etc/exim4/exim4.conf
-exim::tls_certificate_path: /etc/ssl/exim.pem
-exim::tls_privatekey_path: /etc/ssl/exim.key
-exim::ldap_ca_cert_file: /etc/ssl/certs/ca-certificates.crt

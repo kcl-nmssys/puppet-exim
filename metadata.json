@@ -1,18 +1,35 @@
 {
   "name": "kclnmssys-exim",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "King's College London",
-  "summary": "",
+  "summary": "Manage exim MTA",
   "license": "Apache-2.0",
-  "source": "",
+  "source": "https://github.com/kcl-nmssys/puppet-exim",
+  "project_page": "https://github.com/kcl-nmssys/puppet-exim",
+  "issues_url": "https://github.com/kcl-nmssys/puppet-exim/issues",
   "dependencies": [
-
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 4.25.0 < 7.0.0"
+    }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "Debian",
       "operatingsystemrelease": [
         "9"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7",
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7",
       ]
     },
     {
