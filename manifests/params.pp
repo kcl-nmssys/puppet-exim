@@ -9,7 +9,7 @@ class exim::params {
       $tls_certificate_path = '/etc/ssl/exim.pem'
       $tls_privatekey_path  = '/etc/ssl/exim.key'
       $ldap_ca_cert_file    = '/etc/ssl/certs/ca-certificates.crt'
-    },
+    }
     'RedHat': {
       $package_name         = 'exim'
       $service_name         = 'exim'

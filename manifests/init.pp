@@ -55,7 +55,7 @@ class exim (
   String $ldap_user_attrib                                   = 'sAMAccountName',
   String $ldap_auth_attrib                                   = 'userPrincipalName',
   Optional[String] $ldap_filter                              = '(objectClass=user)',
-) {
+) inherits exim::params {
 
   contain ::exim::install
   contain ::exim::config
