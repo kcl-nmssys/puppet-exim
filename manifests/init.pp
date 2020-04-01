@@ -45,6 +45,7 @@ class exim (
   String $retries                                            = 'F,2h,15m; G,16h,1h,1.5; F,4d,6h',
   Array[String] $rewrites                                    = [],
   Boolean $auth_ldap_enable                                  = false,
+  Boolean $auth_server_set_id                                = true,
   Optional[String] $ldap_hostname                            = undef,
   Integer $ldap_port                                         = 636,
   Enum['demand', 'allow', 'try', 'never'] $ldap_require_cert = 'demand',

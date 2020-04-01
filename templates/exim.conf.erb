@@ -286,7 +286,9 @@ begin authenticators
 <% if scope['exim::auth_ldap_enable'] %>
 PLAIN:
   driver                     = plaintext
+<% if scope['exim::auth_server_set_id'] %>
   server_set_id              = $auth2
+<% end %>
   server_prompts             = :
   server_condition           = ${lookup ldap \
     {\
@@ -307,7 +309,9 @@ PLAIN:
 
 LOGIN:
   driver                     = plaintext
+<% if scope['exim::auth_server_set_id'] %>
   server_set_id              = $auth1
+<% end %>
   server_prompts             = <| Username: | Password:
   server_condition           = ${lookup ldap \
     {\
