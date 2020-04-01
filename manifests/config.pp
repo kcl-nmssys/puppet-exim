@@ -32,7 +32,7 @@ class exim::config {
         ensure         => 'present',
         owner          => 'root',
         group          => $exim::service_group,
-        mode           => '0400',
+        mode           => '0440',
         ensure_newline => true;
     }
 
