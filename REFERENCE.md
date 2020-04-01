@@ -480,6 +480,38 @@ Data type: `Optional[String]`
 
 Default value: '(objectClass=user)'
 
+##### `dkim_sign`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `dkim_config_file`
+
+Data type: `String`
+
+
+
+Default value: $exim::params::dkim_config_file
+
+##### `dkim_keys_path`
+
+Data type: `String`
+
+
+
+Default value: $exim::params::dkim_keys_path
+
+##### `dkim_keys`
+
+Data type: `Hash[Stdlib::Fqdn, Struct[{'selector' => String, 'key' => String, 'strict' => Boolean}]]`
+
+
+
+Default value: {}
+
 ### exim::config
 
 The exim::config class.
