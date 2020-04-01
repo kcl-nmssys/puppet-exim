@@ -59,7 +59,7 @@ class exim (
   Boolean $dkim_sign                                         = false,
   String $dkim_config_file                                   = $exim::params::dkim_config_file,
   String $dkim_keys_path                                     = $exim::params::dkim_keys_path,
-  Hash[Stdlib::Fqdn, Struct[{'selector' => String, 'key' => String, 'strict' => Boolean}] $dkim_keys = {},
+  Hash[Stdlib::Fqdn, Struct[{'selector' => String, 'key' => String, 'strict' => Boolean}]] $dkim_keys = {},
 ) inherits exim::params {
 
   contain ::exim::install
