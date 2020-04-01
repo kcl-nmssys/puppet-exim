@@ -1,0 +1,1 @@
+<%= @domain %>: selector=<%= @key['selector'] %> key=<%= scope['exim::dkim_keys_path'] %>/<%= @domain %>.key strict=<%= scope.call_function('bool2str', [@key['strict']]) %>

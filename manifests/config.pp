@@ -18,6 +18,43 @@ class exim::config {
       notify  => Service[$exim::service_name];
   }
 
+  if $exim::dkim_sign {
+    file {
+      $exim::dkim_keys_path:
+        ensure => 'directory',
+        owner  => 'root',
+        group  => $exim::service_group,
+        mode   => '0440';
+    }
+
+    concat {
+      $exim::dkim_config_file:
+        ensure         => 'present',
+        owner          => 'root',
+        group          => $exim::service_group,
+        mode           => '0400',
+        ensure_newline => true;
+    }
+
+    $exim::dkim_keys.each |$domain, $key| {
+      file {
+        "${exim::dkim_keys_path}/${domain}.key":
+          ensure    => 'present',
+          owner     => 'root',
+          group     => $exim::service_group,
+          mode      => '0440',
+          content   => "${key['key']}\n",
+          show_diff => false;
+      }
+
+      concat::fragment {
+        "exim dkim configuration for ${domain}":
+          target  => $exim::dkim_config_file,
+          content => template('exim/dkim.conf.erb');
+      }
+    }
+  }
+
   if $exim::tls_enabled {
     unless $exim::tls_certificate_content and $exim::tls_privatekey_content {
       fail('You must provide tls_certificate_content and tls_privatekey_content when tls_enabled is true')
