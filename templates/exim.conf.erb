@@ -102,8 +102,6 @@ acl_check_rcpt:
   accept  local_parts   = postmaster
           domains       = +local_domains
 
-  require verify        = sender
-
   accept  hosts         = +relay_from_hosts
           control       = submission
           control       = dkim_disable_verify
@@ -111,6 +109,8 @@ acl_check_rcpt:
   accept  authenticated = *
           control       = submission
           control       = dkim_disable_verify
+
+  require verify        = sender
 
   require message	= nice hosts say HELO first
           condition	= ${if def:sender_helo_name}
