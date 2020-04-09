@@ -110,7 +110,9 @@ acl_check_rcpt:
           control       = submission
           control       = dkim_disable_verify
 
+<% if scope['exim::verify_sender'] %>
   require verify        = sender
+<% end %>
 
   require message	= nice hosts say HELO first
           condition	= ${if def:sender_helo_name}
