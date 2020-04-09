@@ -98,4 +98,20 @@ class exim::config {
       ensure => 'running',
       enable => true;
   }
+
+  if $exim::create_mta_fact {
+    file {
+      $exim::mta_fact_file:
+        ensure  => 'file',
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0444',
+        content => to_yaml({'mta' => 'exim'});
+    }
+  } else {
+    file {
+      $exim::mta_fact_file:
+        ensure => 'absent';
+    }
+  }
 }

@@ -504,6 +504,22 @@ Data type: `String`
 
 Default value: $exim::params::dkim_keys_path
 
+##### `create_mta_fact`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `mta_fact_file`
+
+Data type: `String`
+
+
+
+Default value: '/opt/puppetlabs/facter/facts.d/mta.yaml'
+
 ##### `dkim_keys`
 
 Data type: `Hash[Stdlib::Fqdn, Struct[{'selector' => String, 'key' => String, 'strict' => Boolean}]]`

@@ -59,6 +59,8 @@ class exim (
   Boolean $dkim_sign                                         = false,
   String $dkim_config_file                                   = $exim::params::dkim_config_file,
   String $dkim_keys_path                                     = $exim::params::dkim_keys_path,
+  Boolean $create_mta_fact                                   = true,
+  String $mta_fact_file                                      = '/opt/puppetlabs/facter/facts.d/mta.yaml',
   Hash[Stdlib::Fqdn, Struct[{'selector' => String, 'key' => String, 'strict' => Boolean}]] $dkim_keys = {},
 ) inherits exim::params {
 
