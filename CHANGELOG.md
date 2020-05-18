@@ -13,3 +13,7 @@ All notable changes to this project will be documented in this file.
 ## Release 0.2.1
 
 * Create an `mta` fact
+
+## Release 0.2.2
+
+* Fix type of rewrites parameter

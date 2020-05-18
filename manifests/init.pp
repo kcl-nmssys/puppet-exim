@@ -44,7 +44,7 @@ class exim (
   Boolean $smarthost_enable                                  = false,
   Optional[Stdlib::Host] $smarthost                          = undef,
   String $retries                                            = 'F,2h,15m; G,16h,1h,1.5; F,4d,6h',
-  Array[String] $rewrites                                    = [],
+  Array[Array[String]] $rewrites                             = [],
   Boolean $auth_ldap_enable                                  = false,
   Boolean $auth_server_set_id                                = true,
   Optional[String] $ldap_hostname                            = undef,
