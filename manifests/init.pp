@@ -47,6 +47,7 @@ class exim (
   Array[Array[String]] $rewrites                             = [],
   Boolean $auth_ldap_enable                                  = false,
   Boolean $auth_server_set_id                                = true,
+  Enum['ldaps', 'ldap'] $ldap_proto                          = 'ldaps',
   Optional[String] $ldap_hostname                            = undef,
   Integer $ldap_port                                         = 636,
   Enum['demand', 'allow', 'try', 'never'] $ldap_require_cert = 'demand',
