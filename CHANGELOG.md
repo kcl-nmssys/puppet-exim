@@ -17,3 +17,7 @@ All notable changes to this project will be documented in this file.
 ## Release 0.2.2
 
 * Fix type of rewrites parameter
+
+## Release 0.2.3
+
+* Indicate support for CentOS/RHEL 8
