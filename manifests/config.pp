@@ -56,33 +56,35 @@ class exim::config {
   }
 
   if $exim::tls_enabled {
-    unless $exim::tls_certificate_content and $exim::tls_privatekey_content {
-      fail('You must provide tls_certificate_content and tls_privatekey_content when tls_enabled is true')
+    if $exim::tls_manage_certs {
+      unless $exim::tls_certificate_content and $exim::tls_privatekey_content {
+        fail('You must provide tls_certificate_content and tls_privatekey_content when tls_enabled and tls_manage_certs are true')
+      }
+
+      file {
+        $exim::tls_certificate_path:
+          ensure  => 'present',
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0444',
+          content => "${exim::tls_certificate_content}\n",
+          notify  => Service[$exim::service_name];
+
+        $exim::tls_privatekey_path:
+          ensure    => 'present',
+          owner     => 'root',
+          group     => $exim::service_group,
+          mode      => '0440',
+          content   => "${exim::tls_privatekey_content}\n",
+          show_diff => false,
+          notify    => Service[$exim::service_name];
+      }
     }
 
     if $exim::auth_ldap_enable {
       unless $exim::ldap_hostname and $exim::ldap_base_dn and $exim::ldap_bind_dn and $exim::ldap_passwd {
         fail('You must provide all ldap_* parameters when auth_ldap_enable is true')
       }
-    }
-
-    file {
-      $exim::tls_certificate_path:
-        ensure  => 'present',
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0444',
-        content => "${exim::tls_certificate_content}\n",
-        notify  => Service[$exim::service_name];
-
-      $exim::tls_privatekey_path:
-        ensure    => 'present',
-        owner     => 'root',
-        group     => $exim::service_group,
-        mode      => '0440',
-        content   => "${exim::tls_privatekey_content}\n",
-        show_diff => false,
-        notify    => Service[$exim::service_name];
     }
 
     # Because file will contain LDAP password

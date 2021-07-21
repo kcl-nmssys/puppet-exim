@@ -16,6 +16,7 @@ class exim (
   Stdlib::Host $spamd_address                                = 'localhost',
   Integer $spamd_port                                        = 783,
   Boolean $tls_enabled                                       = true,
+  Boolean $tls_manage_certs                                  = true,
   String $tls_certificate_path                               = $exim::params::tls_certificate_path,
   Optional[String] $tls_certificate_content                  = undef,
   String $tls_privatekey_path                                = $exim::params::tls_privatekey_path,
