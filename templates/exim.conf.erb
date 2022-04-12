@@ -126,9 +126,9 @@ acl_check_rcpt:
 
 acl_check_data:
 
-  deny    message    = maximum allowed line length is 998 octets, \
+  deny    message    = maximum allowed line length is 2000 octets, \
                        got $max_received_linelength
-          condition  = ${if > {$max_received_linelength}{998}}
+          condition  = ${if > {$max_received_linelength}{2000}}
 
 <% if scope['exim::av_scanner_enable'] %>
   deny    malware    = *
@@ -218,7 +218,7 @@ begin transports
 
 remote_smtp:
   driver = smtp
-  message_size_limit = ${if > {$max_received_linelength}{998} {1}{0}}
+  message_size_limit = ${if > {$max_received_linelength}{2000} {1}{0}}
 <%- if scope['exim::dkim_sign'] %>
   dkim_domain = ${lookup{$sender_address_domain}lsearch*@{/etc/exim4/dkim.conf}{$sender_address_domain}{}}
   dkim_selector = ${extract{selector}{${lookup{$sender_address_domain}lsearch*@{/etc/exim4/dkim.conf}}}{$value}{}}
